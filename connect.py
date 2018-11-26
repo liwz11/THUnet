@@ -61,5 +61,6 @@ if __name__ == '__main__':
             if wlan_connect():
                 time.sleep(2); # Win10连接wlan之后会立即自动弹出登录页面，造成"getaddrinfo failed"
                 login(username, password);
-        time.sleep(3);
+        else:
+            time.sleep(1);
         
