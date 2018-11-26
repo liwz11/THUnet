@@ -5,16 +5,27 @@ import time
 import hashlib
 
 def is_net_ok():
-    null = open(os.devnull, 'w')
-    res = subprocess.call('ping 8.8.8.8', shell = True, stdout = null, stderr = null)
+    null = open(os.devnull, 'w');
+    res = subprocess.call('ping 8.8.8.8', shell = True, stdout = null, stderr = null);
         
     if res:
-        # print('ping fail')
-        return False
+        # print('Ping failed.');
+        return False;
     else:
-        # print('ping success')
-        return True
+        # print('Ping success.');
+        return True;
 
+def wlan_connect():
+    null = open(os.devnull, 'w');
+    res = subprocess.call('netsh wlan connect name=Tsinghua', shell = True, stdout = null, stderr = null);
+        
+    if res:
+        print('Connect wlan-Tsinghua failed.');
+        return False;
+    else:
+        print('Connect wlan-Tsinghua success.');
+        return True;
+    
 def login(username, password):
     data = {
         'action' : 'login',
@@ -44,7 +55,11 @@ if __name__ == '__main__':
 
     while True:
         if not is_net_ok():
+            print("\n");
+            print(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())));
             print('The network is disconnected.');
-            login(username, password)
-        time.sleep(5)
+            if wlan_connect():
+                time.sleep(2); # Win10连接wlan之后会立即自动弹出登录页面，造成"getaddrinfo failed"
+                login(username, password);
+        time.sleep(3);
         
