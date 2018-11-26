@@ -42,8 +42,11 @@ def login(username, password):
         'Referer': 'http://net.tsinghua.edu.cn/wireless/',
     };
  
-    response = requests.post('http://net.tsinghua.edu.cn/do_login.php', data=data, headers=headers);
-    print(response.text);
+    try:
+        response = requests.post('http://net.tsinghua.edu.cn/do_login.php', data=data, headers=headers, timeout=10);
+        print(response.text);
+    except:
+        print("Unfortunitely -- An error happended on requests.post()")
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
@@ -59,8 +62,11 @@ if __name__ == '__main__':
             print(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())));
             print('The network is disconnected.');
             if wlan_connect():
-                time.sleep(2); # Win10连接wlan之后会立即自动弹出登录页面，造成"getaddrinfo failed"
+                time.sleep(5); # Win10连接wlan之后会立即自动弹出登录页面，造成"getaddrinfo failed"
                 login(username, password);
         else:
             time.sleep(1);
         
+
+
+
