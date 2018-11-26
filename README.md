@@ -1,12 +1,12 @@
 # THUnet
 
-登录Tsinghua校园网：
+Tsinghua校园网登录：
 
 ```
 python ./login.py <username> <password>
 ```
 
-断开Tsinghua校园网：
+Tsinghua校园网断开：
 
 ```
 python ./logout.py
