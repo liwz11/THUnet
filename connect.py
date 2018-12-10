@@ -1,13 +1,19 @@
-import os, sys
+import os, sys, time, chardet
 import subprocess
 import requests
-import time
 import hashlib
 
-def is_net_ok():
-    null = open(os.devnull, 'w');
-    res = subprocess.call('ping 8.8.8.8', shell = True, stdout = null, stderr = null);
-        
+def is_net_ok(ping_target):
+    #null = open(os.devnull, 'w');
+    #res = subprocess.call('ping 8.8.8.8', shell = True, stdout = null, stderr = null);
+    
+    p = subprocess.Popen("ping " + ping_target, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE);
+    (stdoutput, erroutput) = p.communicate();
+    encoding = chardet.detect(stdoutput)['encoding'];
+    output = stdoutput.decode(encoding);
+    retcode = p.returncode;
+    res = ("ms TTL=" not in output);
+    
     if res:
         # print('Ping failed.');
         return False;
@@ -15,9 +21,9 @@ def is_net_ok():
         # print('Ping success.');
         return True;
 
-def wlan_connect():
+def wlan_connect(name, interface):
     null = open(os.devnull, 'w');
-    res = subprocess.call('netsh wlan connect name=Tsinghua', shell = True, stdout = null, stderr = null);
+    res = subprocess.call('netsh wlan connect name="' + name + '" interface="' + interface + '"', shell = True, stdout = null, stderr = null);
         
     if res:
         print('Connect wlan-Tsinghua failed.');
@@ -49,19 +55,27 @@ def login(username, password):
         print("Unfortunitely -- An error happended on requests.post()")
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        print("Usage: python ./connect.py <username> <password>\n");
+    if len(sys.argv) < 3:
+        print('\nUsage: python ./connect.py <username> <password> [wlan-interface]\n');
+        print('Examp: python ./connect.py test 1234567');
+        print('Examp: python ./connect.py test 1234567 "Wireless Network Connection"\n');
+        print('Examp: python ./connect.py test 1234567 "无线网络连接 4"\n');
         os._exit(1);
-
+    
     username = sys.argv[1];
     password = sys.argv[2];
+    interface = "无线网络连接" # "Wireless Network Connection"
+    name = "Tsinghua"
+    
+    if len(sys.argv) > 3:
+        interface = sys.argv[3]
 
     while True:
-        if not is_net_ok():
+        if not is_net_ok("info.tsinghua.edu.cn"):
             print("\n");
             print(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())));
             print('The network is disconnected.');
-            if wlan_connect():
+            if wlan_connect(name, interface):
                 time.sleep(5); # Win10连接wlan之后会立即自动弹出登录页面，造成"getaddrinfo failed"
                 login(username, password);
         else:
